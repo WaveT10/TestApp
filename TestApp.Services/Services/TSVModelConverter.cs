@@ -74,21 +74,21 @@ namespace TestApp.Services
         {
             return string.Join(Environment.NewLine,
                                functions.List.SelectMany(function => 
-                                   function.Points.Select(point => 
+                                   function.Points.Select(point =>
                                        GetTSVLine(function.Number, point.Number, point.X, point.Y))));
         }
 
-        private string GetTSVLine(params object[] values) 
+        private static string GetTSVLine(params object[] values) 
         {
             return string.Join('\t', values);
         }
 
-        private string[] GetRows(string? text) 
+        private static string[] GetRows(string? text) 
         {
             return (text ?? string.Empty).Split(["\r\n", "\r", "\n"], StringSplitOptions.RemoveEmptyEntries);
         }
 
-        private string[] GetColumns(string row)
+        private static string[] GetColumns(string row)
         {
             return row.Split("\t");
         }

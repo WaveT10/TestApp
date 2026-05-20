@@ -1,6 +1,5 @@
 ﻿using System.Collections.ObjectModel;
 using System.Linq;
-using Avalonia;
 using CommunityToolkit.Mvvm.Input;
 using LiveChartsCore.Defaults;
 using LiveChartsCore.SkiaSharpView;
@@ -10,7 +9,6 @@ using TestApp.Services;
 using Avalonia.Input.Platform;
 using TestApp.Abstractions;
 using Point = TestApp.Abstractions.Point;
-using System.Drawing;
 
 namespace TestApp
 {
