@@ -12,6 +12,7 @@
     <Design.DataContext>
         <vm:FunctionsViewModel/>
     </Design.DataContext>
+
     <Window.Styles>
         <Style Selector="StackPanel.horizontal">
             <Setter Property="Orientation" Value="Horizontal"/>
@@ -30,9 +31,7 @@
         <Style></Style>
     </Window.Styles>
 
-
-
-    <StackPanel Classes="horizontal">
+    <StackPanel Orientation="Horizontal" Spacing="10">
 
         <StackPanel Width="500">
             <TextBlock HorizontalAlignment="Center"
