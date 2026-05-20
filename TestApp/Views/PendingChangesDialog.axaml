@@ -1,0 +1,24 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        x:Class="TestApp.PendingChangesDialog"
+        Icon="/Assets/avalonia-logo.ico"
+        Title="Unsaved Changes"
+        Width="550"
+        Height="150"
+        CanResize="False"
+        WindowStartupLocation="CenterOwner">
+
+    <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
+        <TextBlock Text="You have unsaved changes. Would you like to save them before proceeding?"
+                   MaxLines="3"
+                   TextWrapping="Wrap"
+                   Margin="8"/>
+        <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Spacing="20">
+            <Button Content="Save and Proceed" Click="OnSaveAndProceedClick" HotKey="Enter"/>
+            <Button Content="Proceed without saving" Click="OnProceedWithoutSavingClick"/>
+            <Button Content="Cancel" Click="OnCancelClick" HotKey="Escape"/>
+        </StackPanel>
+    </StackPanel>
+</Window>

@@ -1,0 +1,127 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:vm="using:TestApp"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+        x:Class="TestApp.FunctionsWindow"
+        x:DataType="vm:FunctionsViewModel"
+        xmlns:lvc="using:LiveChartsCore.SkiaSharpView.Avalonia"
+        Icon="/Assets/avalonia-logo.ico"
+        Title="TestApp">
+    <Design.DataContext>
+        <vm:FunctionsViewModel/>
+    </Design.DataContext>
+    <Window.Styles>
+        <Style Selector="StackPanel.horizontal">
+            <Setter Property="Orientation" Value="Horizontal"/>
+            <Setter Property="Spacing" Value="10"/>
+            <Setter Property="HorizontalAlignment" Value="Center"/>
+        </Style>
+        <Style Selector="TextBlock">
+            <Setter Property="FontWeight" Value="Bold"/>
+            <Setter Property="VerticalAlignment" Value="Center"/>
+        </Style>
+        <Style Selector="NumericUpDown">
+            <Setter Property="FormatString" Value="0.00"/>
+            <Setter Property="ShowButtonSpinner" Value="False"/>
+            <Setter Property="AllowSpin" Value="False"/>
+        </Style>
+        <Style></Style>
+    </Window.Styles>
+
+
+
+    <StackPanel Classes="horizontal">
+
+        <StackPanel Width="500">
+            <TextBlock HorizontalAlignment="Center"
+                       Margin="0,20,0,20">Functions</TextBlock>
+            <StackPanel Classes="horizontal"
+                        VerticalAlignment="Center">
+                <Button Content="Load"
+                        Command="{Binding LoadFunctionsCommand}"
+                        CommandParameter="{Binding $parent[Window].StorageProvider}"/>
+                <Button Content="Save"
+                        Command="{Binding SaveFunctionsCommand}"
+                        CommandParameter="{Binding $parent[Window].StorageProvider}"/>
+                <Button Content="Save As"
+                        Command="{Binding SaveFunctionsAsCommand}"
+                        CommandParameter="{Binding $parent[Window].StorageProvider}"/>
+            </StackPanel>
+
+            <StackPanel Classes="horizontal"
+                        Margin="0,20,0,20">
+                <ComboBox ItemsSource="{Binding Functions}"
+                          SelectedValue="{Binding SelectedFunctionNumber}"
+                          SelectedValueBinding="{Binding Number}">
+                    <ComboBox.ItemTemplate>
+                        <DataTemplate>
+                            <StackPanel Classes="horizontal">
+                                <TextBlock Text="{Binding Number}"/>
+                                <Button Content="Remove"
+                                        Command="{Binding $parent[ComboBox].((vm:FunctionsViewModel)DataContext).RemoveFunctionCommand}"
+                                        CommandParameter="{Binding Number}"
+                                        IsVisible="{Binding $parent[ComboBox].((vm:FunctionsViewModel)DataContext).IsFunctionSelected}"/>
+                            </StackPanel>
+                        </DataTemplate>
+                    </ComboBox.ItemTemplate>
+                </ComboBox>
+                <Button Content="Add"
+                        Command="{Binding AddFunctionCommand}"/>
+            </StackPanel>
+
+            <StackPanel IsVisible="{Binding IsFunctionSelected}"
+                        HorizontalAlignment="Center">
+                <ListBox ItemsSource="{Binding SelectedFunction.Points}">
+                    <ListBox.ItemTemplate>
+                        <DataTemplate>
+                            <StackPanel Classes="horizontal" KeyboardNavigation.TabNavigation="Cycle">
+                                <NumericUpDown Value="{Binding X, Mode=TwoWay}">
+                                    <NumericUpDown.InnerLeftContent>
+                                        <TextBlock Text="X:"/>
+                                    </NumericUpDown.InnerLeftContent>
+                                </NumericUpDown>
+                                <NumericUpDown Value="{Binding Y, Mode=TwoWay}">
+                                    <NumericUpDown.InnerLeftContent>
+                                        <TextBlock Text="Y:"/>
+                                    </NumericUpDown.InnerLeftContent>
+                                </NumericUpDown>
+                                <Button Content="Remove"
+                                        Command="{Binding $parent[ListBox].((vm:FunctionsViewModel)DataContext).SelectedFunction.RemovePointCommand}"
+                                        CommandParameter="{Binding Number}"/>
+                            </StackPanel>
+                        </DataTemplate>
+                    </ListBox.ItemTemplate>
+                </ListBox>
+                <StackPanel Classes="horizontal"
+                            Margin="0,20">
+                    <Button Content="Add Point"
+                            Command="{Binding SelectedFunction.AddPointCommand}"
+                            IsVisible="{Binding SelectedFunction.AllowNewPoint}"/>
+                    <Button Content="Copy Function"
+                            Command="{Binding SelectedFunction.CopyToClipboardCommand}"/>
+                    <Button Content="Paste Function"
+                            Command="{Binding SelectedFunction.PasteFromClipboardCommand}"/>
+                    <Button Content="Create Inversed"
+                            Command="{Binding $parent[Window].((vm:FunctionsViewModel)DataContext).AddInversedFunctionCommand}"
+                            CommandParameter="{Binding SelectedFunctionNumber}"
+                            IsVisible="{Binding SelectedFunction.IsStrictlyMonotonic}"/>
+                </StackPanel>
+            </StackPanel>
+
+        </StackPanel>
+
+        <StackPanel>
+            <lvc:CartesianChart Series="{Binding LineSeriesList}"
+                                PointerPressedCommand="{Binding StartMovingFunctionPoint}"
+                                PointerMoveCommand="{Binding MoveFunctionPoint}"
+                                PointerReleasedCommand="{Binding StopMovingFunctionPoint}"
+                                Height="500"
+                                Width="500">
+            </lvc:CartesianChart>
+        </StackPanel>
+
+    </StackPanel>
+
+</Window>
