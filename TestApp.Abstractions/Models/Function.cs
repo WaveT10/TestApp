@@ -16,6 +16,8 @@
 
         public bool Empty => !_pointsDictionary.Any();
 
+        public int LastPointNumber => _pointsDictionary.Keys.DefaultIfEmpty().Max();
+
         public bool IsStrictlyMonotonic 
         {
             get 
@@ -97,7 +99,7 @@
 
         public bool Exists(int pointNumber)
         {
-            return GetPointOrDefault(pointNumber) is not null;
+            return _pointsDictionary.ContainsKey(pointNumber);
         }
 
         public Point? GetLastNearPoint(double x, double y, double acceptedDistance) 

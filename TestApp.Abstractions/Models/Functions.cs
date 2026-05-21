@@ -15,9 +15,11 @@
 
         public IReadOnlyCollection<Function> List => _functionsDictionary.Values;
 
+        public bool Empty => !List.Any();
+
         public bool AllFunctionsEmpty => List.All(function => function.Empty);
 
-        private int LastFunctionNumber => List.MaxBy(point => point.Number)?.Number ?? 0;
+        public int LastFunctionNumber => _functionsDictionary.Keys.DefaultIfEmpty().Max();
 
         public Function AddFunction()
         {

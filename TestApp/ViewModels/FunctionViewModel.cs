@@ -58,8 +58,6 @@ namespace TestApp
         [RelayCommand]
         private void RemovePoint(int pointNumber)
         {
-            var pointViewModel = Points.Single(point => point.Number == pointNumber);            
-
             if (_function.Exists(pointNumber))
             {
                 var pointIndex = _function.GetPointIndex(pointNumber);
@@ -67,14 +65,14 @@ namespace TestApp
                 _lineSeriesPoints.Remove(_lineSeriesPoints[pointIndex]);
             }
 
+            var pointViewModel = Points.Single(point => point.Number == pointNumber);
             Points.Remove(pointViewModel);
         }
 
         [RelayCommand]
         private void AddPoint()
         {
-            var maxPointNumber = Points.MaxBy(point => point.Number)?.Number ?? 0;
-            var point = new PointViewModel(_function, ++maxPointNumber, _lineSeriesPoints);
+            var point = new PointViewModel(_function, _function.LastPointNumber + 1, _lineSeriesPoints);
             point.PropertyChanged += (s, e) => RecalculateProperties();
             Points.Add(point);
         }

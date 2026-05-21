@@ -67,7 +67,7 @@ namespace TestApp
             var function = GetFunction(functionNumber);
             LineSeriesList.Remove(function.LineSeries);
             Functions.Remove(function);
-            SelectedFunctionNumber = isSelectedItemRemoved ? Functions.MaxBy(point => point.Number)?.Number : SelectedFunctionNumber;
+            SelectedFunctionNumber = isSelectedItemRemoved && !_functionsModel.Empty ? _functionsModel.LastFunctionNumber : SelectedFunctionNumber;
             
         }
 
@@ -128,7 +128,7 @@ namespace TestApp
                                                                                    .OrderBy(function => function.Number)
                                                                                    .Select(function => new FunctionViewModel(function, _clipboard, _modelConverterFactory)));
             LineSeriesList = new ObservableCollection<ISeries>(Functions.Select(function => function.LineSeries));
-            SelectedFunctionNumber = Functions.LastOrDefault()?.Number;
+            SelectedFunctionNumber = _functionsModel.LastFunctionNumber;
             _activeFilePath = file.TryGetLocalPath();
         }
 
