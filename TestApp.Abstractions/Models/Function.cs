@@ -73,9 +73,9 @@
             _points.Add(point);
         }
 
-        public Point UpdatePoint(Point newPoint)
+        public void UpdatePoint(Point newPoint)
         {
-            return GetPoint(newPoint.Number).Update(newPoint.X, newPoint.Y);
+            GetPoint(newPoint.Number).Update(newPoint.X, newPoint.Y);
         }
 
         public void RemovePoint(int pointNumber)    

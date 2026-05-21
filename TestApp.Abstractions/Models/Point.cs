@@ -15,11 +15,10 @@
         
         public double Y { get; private set; }
 
-        public Point Update(double x, double y) 
+        public void Update(double x, double y) 
         {
             X = x;
             Y = y;
-            return this;
         }
 
         public double GetDistanceTo(double x, double y)
