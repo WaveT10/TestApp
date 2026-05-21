@@ -2,68 +2,54 @@
 {
     public sealed class Functions : IEquatable<Functions>
     {
-        private List<Function> _list = new List<Function>();
+        private Dictionary<int, Function> _functionsDictionary = new Dictionary<int, Function>();
 
-        public Functions() 
+        public Functions()
         {
         }
 
         public Functions(IReadOnlyCollection<Function> list)
         {
-            _list = list.ToList();
+            _functionsDictionary = list.ToDictionaryOrThrowIfDupplicate(function => function.Number);
         }
 
-        public IReadOnlyCollection<Function> List => _list;
+        public IReadOnlyCollection<Function> List => _functionsDictionary.Values;
 
         public bool AllFunctionsEmpty => List.All(function => function.Empty);
 
         private int LastFunctionNumber => List.MaxBy(point => point.Number)?.Number ?? 0;
 
-        public Function AddFunction() 
+        public Function AddFunction()
         {
             var function = new Function([], LastFunctionNumber + 1);
 
-            _list.Add(function);
+            _functionsDictionary[function.Number] = function;
             return function;
         }
 
         public Function AddInversedFunction(int originalFunctionNumber)
         {
-            var function = GetFunction(originalFunctionNumber);
+            var function = _functionsDictionary.GetOrResourceNotFound(originalFunctionNumber);
             var inversedFunction = function.ToInversedFunction(inversedFunctionNumber: LastFunctionNumber + 1);
-            _list.Add(inversedFunction);
+            _functionsDictionary[inversedFunction.Number] = inversedFunction;
             return inversedFunction;
         }
 
         public void Remove(int functionNumber)
         {
-            var function = GetFunction(functionNumber);
-
-            _list.Remove(function);
-        }
-
-        public Function GetFunction(int functionNumber)
-        {
-            return _list.SingleOrResourceNotFound(function => function.Number == functionNumber);
+            _functionsDictionary.RemoveOrResourceNotFound(functionNumber);
         }
 
         public Function? GetLastFunctionWithNearPoint(double x, double y, double acceptedDistance)
         {
-            return _list.Where(function => function.GetLastNearPoint(x, y, acceptedDistance) is not null)
-                        .OrderByDescending(function => function.Number)
-                        .MinBy(function => function.GetLastNearPoint(x, y, acceptedDistance)?.GetDistanceTo(x, y));
+            return List.Where(function => function.GetLastNearPoint(x, y, acceptedDistance) is not null)
+                       .OrderByDescending(function => function.Number)
+                       .MinBy(function => function.GetLastNearPoint(x, y, acceptedDistance)?.GetDistanceTo(x, y));
         }
 
         public void Reassign(IReadOnlyCollection<Function> functions)
         {
-            var hasSameNumbers = functions.GroupBy(point => point.Number).Any(group => group.Count() > 1);
-
-            if (hasSameNumbers)
-            {
-                throw new BadArgumentException(Errors.ItemWithTheSameNumberExists);
-            }
-
-            _list = functions.ToList();
+            _functionsDictionary = functions.ToDictionaryOrThrowIfDupplicate(function => function.Number);
         }
 
         public Functions Clone()

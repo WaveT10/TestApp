@@ -2,25 +2,25 @@
 {
     public sealed class Function : IEquatable<Function>
     {
-        private List<Point> _points;
+        private Dictionary<int, Point> _pointsDictionary;
 
         public Function(IReadOnlyCollection<Point> points, int number)
         {
-            _points = points.ToList();
+            _pointsDictionary = points.ToDictionaryOrThrowIfDupplicate(point => point.Number);
             Number = number;
         }
 
         public int Number { get; }
 
-        public IReadOnlyCollection<Point> Points => _points;
+        public IReadOnlyCollection<Point> Points => _pointsDictionary.Values;
 
-        public bool Empty => !_points.Any();
+        public bool Empty => !_pointsDictionary.Any();
 
         public bool IsStrictlyMonotonic 
         {
             get 
             {
-                if (_points.Count < 2) 
+                if (_pointsDictionary.Count < 2) 
                 {
                     return false;
                 }
@@ -30,7 +30,7 @@
                 double? previousDeltaX = null;
                 double? previousDeltaY = null;
 
-                foreach (var point in _points) 
+                foreach (var point in Points.OrderBy(point => point.Number)) 
                 {
                     if (previousPoint == null) 
                     {
@@ -65,36 +65,34 @@
 
         public void AddPoint(Point point)
         {
-            if (_points.Any(p => p.Number == point.Number)) 
+            if (_pointsDictionary.ContainsKey(point.Number)) 
             {
                 throw new BadArgumentException(Errors.ItemWithTheSameNumberExists);
             }
 
-            _points.Add(point);
+            _pointsDictionary[point.Number] = point;
         }
 
         public void UpdatePoint(Point newPoint)
         {
-            GetPoint(newPoint.Number).Update(newPoint.X, newPoint.Y);
+            _pointsDictionary.GetOrResourceNotFound(newPoint.Number).Update(newPoint.X, newPoint.Y);
         }
 
         public void RemovePoint(int pointNumber)    
         {
-            var point = GetPoint(pointNumber);
-
-            _points.Remove(point);
+            _pointsDictionary.RemoveOrResourceNotFound(pointNumber);
         }
 
         public Point? GetPointOrDefault(int pointNumber)
         {
-            return _points.SingleOrDefault(point => point.Number == pointNumber);
+            return _pointsDictionary.TryGetValue(pointNumber, out var point) ? point : null;
         }
 
         public int GetPointIndex(int pointNumber)
         {
-            var point = GetPoint(pointNumber);
+            var point = _pointsDictionary.GetOrResourceNotFound(pointNumber);
 
-            return _points.OrderBy(point => point.Number).ToList().IndexOf(point);
+            return Points.OrderBy(point => point.Number).ToList().IndexOf(point);
         }
 
         public bool Exists(int pointNumber)
@@ -104,26 +102,19 @@
 
         public Point? GetLastNearPoint(double x, double y, double acceptedDistance) 
         {
-            return _points.Where(point => point.GetDistanceTo(x, y) < acceptedDistance)
-                          .OrderByDescending(point => point.Number)
-                          .MinBy(point => point.GetDistanceTo(x, y));
+            return Points.Where(point => point.GetDistanceTo(x, y) < acceptedDistance)
+                         .OrderByDescending(point => point.Number)
+                         .MinBy(point => point.GetDistanceTo(x, y));
         }
 
         public void Reassign(IReadOnlyCollection<Point> points)
         {
-            var hasSameNumbers = points.GroupBy(point => point.Number).Any(group => group.Count() > 1);
-
-            if (hasSameNumbers) 
-            {
-                throw new BadArgumentException(Errors.ItemWithTheSameNumberExists);
-            }
-
-            _points = points.ToList();
+            _pointsDictionary = points.ToDictionaryOrThrowIfDupplicate(point => point.Number);
         }
 
         public Function ToInversedFunction(int inversedFunctionNumber) 
         {
-            var inversedPoints = _points.Select(point => point.ToInversedPoint()).ToList();
+            var inversedPoints = Points.Select(point => point.ToInversedPoint()).ToList();
             return IsStrictlyMonotonic ? 
                 new Function(inversedPoints, inversedFunctionNumber) : 
                 throw new InvalidOperationException(Errors.CanNotConvertToInvercedFunction);
@@ -131,7 +122,7 @@
 
         public Function Clone()
         {
-            return new Function(_points.Select(point => point.Clone()).ToList(), Number);
+            return new Function(Points.Select(point => point.Clone()).ToList(), Number);
         }
 
         public bool Equals(Function? other)
@@ -155,11 +146,6 @@
 
             hash.Add(Number);
             return hash.ToHashCode();
-        }
-
-        private Point GetPoint(int pointNumber)
-        {
-            return _points.SingleOrResourceNotFound(point => point.Number == pointNumber);
         }
     }
 }
